@@ -1,48 +1,257 @@
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Layouts</title>
-  <link rel="stylesheet" href="../css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Interaction Map</title>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
-  <header>
-    <h1>Layouts</h1>
-    <nav>
-      <ul>
-        <li><a href="../index.html">Home</a></li>
-        <li><a href="core-concepts.html">Core Concepts</a></li>
-        <li><a href="layouts.html">Layouts</a></li>
-        <li><a href="interactive_view.html">Interactive View</a></li>
-        <li><a href="challenges.html">Challenges</a></li>
-        <li><a href="benefits.html">Benefits</a></li>
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <section>
-      <h2>Command Structure</h2>
-      <p>The bot features tiered commands to ensure fair moderation. Commands are based on role hierarchy:</p>
-      <ul>
-        <li><strong>Citizens:</strong> Can request their own records, but only after moderator approval.</li>
-        <li><strong>Enforcers:</strong> Record infractions, approve citizen requests, and submit evidence for review.</li>
-        <li><strong>Judges:</strong> Review cases, resolve disputes, and apply final judgments.</li>
-      </ul>
-    </section>
-    <section>
-      <h2>Dashboard Overview</h2>
-      <p>The dashboard for Mod Reagan provides an easy way to view and manage infractions:</p>
-      <ul>
-        <li>Infractions by user</li>
-        <li>Pending case reviews</li>
-        <li>Cross-server infractions</li>
-        <li>Search and filter tools</li>
-      </ul>
-    </section>
-  </main>
-  <footer>
-    <p>&copy; 2025 Mod Reagan Project</p>
-  </footer>
+
+    <header>
+        <h1>Interactive View</h1>
+        <nav>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="core-concepts.html">Core Concepts</a></li>
+            <li><a href="layouts.html">Layouts</a></li>
+            <li><a href="interactive_view.html">Interactive View</a></li>
+            <li><a href="challenges.html">Challenges</a></li>
+            <li><a href="benefits.html">Benefits</a></li>
+          </ul>
+        </nav>
+      </header>
+
+    <div id="map"></div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        // Define the data for the bot interactions with hierarchy
+        const data = {
+            nodes: [
+                // Main Entity: Mod Reagan System
+                { id: 'Mod Reagan', group: 1 },
+
+                // Each Server (Jurisdiction)
+                { id: 'Server 1', group: 2 },
+                { id: 'Server 2', group: 2 },
+                { id: 'Server 3', group: 2 },
+                { id: 'Server 4', group: 2 },
+                { id: 'Server 5', group: 2 },
+
+                // Server Laws (Different per server)
+                { id: 'Server Laws 1', group: 3 },
+                { id: 'Server Laws 2', group: 3 },
+                { id: 'Server Laws 3', group: 3 },
+                { id: 'Server Laws 4', group: 3 },
+                { id: 'Server Laws 5', group: 3 },
+
+                // User Roles (Hierarchy)
+                { id: 'Citizens 1', group: 4 },
+                { id: 'Enforcers 1', group: 4 },
+                { id: 'Judges 1', group: 4 },
+                { id: 'Citizens 2', group: 4 },
+                { id: 'Enforcers 2', group: 4 },
+                { id: 'Judges 2', group: 4 },
+                { id: 'Citizens 3', group: 4 },
+                { id: 'Enforcers 3', group: 4 },
+                { id: 'Judges 3', group: 4 },
+                { id: 'Citizens 4', group: 4 },
+                { id: 'Enforcers 4', group: 4 },
+                { id: 'Judges 4', group: 4 },
+                { id: 'Citizens 5', group: 4 },
+                { id: 'Enforcers 5', group: 4 },
+                { id: 'Judges 5', group: 4 },
+
+                // Local Mod Logs (Per-Server Records)
+                { id: 'Mod Logs 1', group: 5 },
+                { id: 'Mod Logs 2', group: 5 },
+                { id: 'Mod Logs 3', group: 5 },
+                { id: 'Mod Logs 4', group: 5 },
+                { id: 'Mod Logs 5', group: 5 },
+
+                // Global Record Database (Cross-Server)
+                { id: 'Global Record Database', group: 6 },
+
+                // Shared Infractions (Opt-In)
+                { id: 'Shared Infractions', group: 7 },
+
+                // User Reputation System
+                { id: 'User Reputation System', group: 8 },
+
+                // Appeals & Review System
+                { id: 'Appeals & Review', group: 9 },
+
+                // User Record Requests
+                { id: 'User Record Requests', group: 10 },
+
+                // Judicial Review (Senior Mods Only)
+                { id: 'Judicial Review', group: 10 },
+
+                // Admin Tools
+                { id: 'Admin Tools', group: 11 },
+
+                // Web Dashboard (Future)
+                { id: 'Web Dashboard', group: 12 },
+
+                // Discord Commands
+                { id: 'Discord Commands', group: 13 },
+
+                // Privacy Policy
+                { id: 'Privacy Policy', group: 14 },
+            ],
+
+            links: [
+                // Mod Reagan connects to each server
+                { source: 'Mod Reagan', target: 'Server 1' },
+                { source: 'Mod Reagan', target: 'Server 2' },
+                { source: 'Mod Reagan', target: 'Server 3' },
+                { source: 'Mod Reagan', target: 'Server 4' },
+                { source: 'Mod Reagan', target: 'Server 5' },
+
+                // Each server connects to its laws
+                { source: 'Server 1', target: 'Server Laws 1' },
+                { source: 'Server 2', target: 'Server Laws 2' },
+                { source: 'Server 3', target: 'Server Laws 3' },
+                { source: 'Server 4', target: 'Server Laws 4' },
+                { source: 'Server 5', target: 'Server Laws 5' },
+
+                // Roles connect to servers
+                { source: 'Enforcers 1', target: 'Citizens 1' },
+                { source: 'Enforcers 2', target: 'Citizens 2' },
+                { source: 'Enforcers 3', target: 'Citizens 3' },
+                { source: 'Enforcers 4', target: 'Citizens 4' },
+                { source: 'Enforcers 5', target: 'Citizens 5' },
+
+                { source: 'Judges 1', target: 'Enforcers 1' },
+                { source: 'Judges 2', target: 'Enforcers 2' },
+                { source: 'Judges 3', target: 'Enforcers 3' },
+                { source: 'Judges 4', target: 'Enforcers 4' },
+                { source: 'Judges 5', target: 'Enforcers 5' },
+
+                { source: 'Server 1', target: 'Judges 1' },
+                { source: 'Server 2', target: 'Judges 2' },
+                { source: 'Server 3', target: 'Judges 3' },
+                { source: 'Server 4', target: 'Judges 4' },
+                { source: 'Server 5', target: 'Judges 5' },
+
+                // Servers connect to local mod logs
+                { source: 'Server 1', target: 'Mod Logs 1' },
+                { source: 'Server 2', target: 'Mod Logs 2' },
+                { source: 'Server 3', target: 'Mod Logs 3' },
+                { source: 'Server 4', target: 'Mod Logs 4' },
+                { source: 'Server 5', target: 'Mod Logs 5' },
+
+                // Global Record Database connections
+                { source: 'Mod Reagan', target: 'Global Record Database' },
+                { source: 'Global Record Database', target: 'Shared Infractions' },
+                { source: 'Global Record Database', target: 'Web Dashboard' },
+                { source: 'Global Record Database', target: 'User Reputation System' },
+
+                // Appeals & Review System connections
+                { source: 'Global Record Database', target: 'Appeals & Review' },
+
+                // User Record Requests connect to the Appeals system
+                { source: 'Appeals & Review', target: 'User Record Requests' },
+
+                // Judicial Review connects to appeals
+                { source: 'Appeals & Review', target: 'Judicial Review' },
+
+                // Admin Tools section
+                { source: 'Admin Tools', target: 'Web Dashboard' },
+                { source: 'Admin Tools', target: 'Discord Commands' },
+                { source: 'Mod Reagan', target: 'Discord Commands' },
+                { source: 'Admin Tools', target: 'Privacy Policy' },
+            ]
+        };
+
+
+        const svg = d3.select("#map").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g");
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 10])
+            .on("zoom", (event) => g.attr("transform", event.transform));
+
+        svg.call(zoom);
+
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links).id(d => d.id).distance(420))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 4, height / 4));
+
+        const link = g.append("g")
+            .selectAll(".link")
+            .data(data.links)
+            .enter().append("line")
+            .attr("class", "link");
+
+        const node = g.append("g")
+            .selectAll(".node")
+            .data(data.nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 100)
+            .call(d3.drag()
+                .on("start", dragStart)
+                .on("drag", dragging)
+                .on("end", dragEnd));
+
+        const label = g.append("g")
+            .selectAll(".label")
+            .data(data.nodes)
+            .enter().append("text")
+            .attr("class", "label")
+            .attr("x", 0)
+            .attr("y", 0)
+            .text(d => d.id)
+            .style("max-width", "10px");
+
+        simulation.on("tick", function () {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+
+            label
+                .attr("x", d => d.x)
+                .attr("y", d => d.y);
+        });
+
+        function dragStart(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragging(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragEnd(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    </script>
+
 </body>
+
 </html>
